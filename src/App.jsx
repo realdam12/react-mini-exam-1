@@ -12,8 +12,7 @@ function loadMenus() {
 }
 
 function App() {
-
-  const [menus, setMenus] = useState(initialMenus)
+  const [menus, setMenus] = useState(loadMenus)
 
   const total = menus.reduce((sum, m) => sum + m.votes, 0)
   const topVotes = Math.max(...menus.map((m) => m.votes))
@@ -27,11 +26,14 @@ function App() {
   useEffect(() => {
 
     localStorage.setItem('lunch-menus', JSON.stringify(menus))
-  },[menus])
+  }, [menus])
 
-    const vote = (id) => {
+  const vote = (id) => {
     setMenus(menus.map((m) => (m.id === id ? { ...m, votes: m.votes + 1 } : m)))
-
+  }
+  const reset = () => {
+    setMenus(menus.map((m) => ({ ...m, votes: 0 })))
+  }
 
   const addMenu = (name) => {
     setMenus([...menus, {
@@ -48,17 +50,21 @@ function App() {
       <AddMenu onAdd={addMenu} />
       <ul className="menus">
         {menus.map((m) => (
-          <MenuCard key={m.id} {...m} />
-
+          <MenuCard
+            key={m.id}
+            {...m}
+            onVote={() => vote(m.id)}
+            isTop={m.votes === topVotes && topVotes > 0}
+          />
         ))}
       </ul>
 
 
       <footer className='footer'>
-        <button type='button' className='reset'> 투표 초기화</button>
+        <button type='button' className='reset' onClick={reset}> 투표 초기화</button>
       </footer>
     </div>
   )
-}}
+}
 
 export default App
